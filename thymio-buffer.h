@@ -26,6 +26,8 @@
 #include <vm/vm.h>
 #include <common/types.h>
 
+void customSendUSB(char* buf, int size);
+uint16_t customReceiveUSB(char* buf);
 
 /************** 
  * Interface USB-HW (Interrupt) <-> Usb buffer 

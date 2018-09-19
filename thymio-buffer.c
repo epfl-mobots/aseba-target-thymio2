@@ -96,6 +96,37 @@ static inline void fifo_peek(unsigned char * d, struct fifo * f,size_t size) {
 	}
 }	
 
+static USB_HANDLE txHandle = NULL;
+static USB_HANDLE rxHandle = NULL;
+void customSendUSB(char* buf, int size){
+	while(USBHandleBusy(txHandle));
+
+	txHandle = USBTxOnePacket(CDC_DATA_EP,(BYTE *)buf,size);
+}
+
+char rxbuff[64] = {0};
+uint16_t customReceiveUSB(char* buf){
+	uint16_t size = 0;
+	if(!USBHandleBusy(rxHandle)){
+
+		if(rxHandle != NULL){
+			size = USBHandleGetLength(rxHandle);
+		}
+
+		if(size > 0){
+			uint16_t i = 0;
+			for(i = 0 ; i < size ; i++){
+				buf[i] = rxbuff[i];
+			}
+		}
+
+		rxHandle = USBRxOnePacket(CDC_DATA_EP,(BYTE *)rxbuff, 64);
+	}
+	
+
+	return size;
+}
+
 static inline void fifo_reset(struct fifo * f) {
 	f->insert = f->consume = 0;
 }

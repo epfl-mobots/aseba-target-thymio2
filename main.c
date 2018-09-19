@@ -80,6 +80,9 @@ History:
 #include "rf.h"
 #include "motor.h"
 
+#include "thymio-buffer.h"
+
+
 #include <skel-usb.h>
 
 // The real configuration bits are set by the bootloader
@@ -339,6 +342,14 @@ static void idle_without_aseba(void) {
 	update_aseba_variables_write();
 }
 
+// Simple delay function
+void delay(volatile uint32_t n)
+{
+    while (n--) {
+        __asm__ volatile ("nop");
+    }
+}
+
 int main(void)
 {   
 	int test_mode;
@@ -494,7 +505,63 @@ int main(void)
 	sd_user_open(NULL);
 	
 	// Give full control to aseba. No way out (except reset).
-	run_aseba_main_loop();
+	//run_aseba_main_loop();
+
+	char temp[60];
+	char temprx[64];
+	uint8_t rcv = 0;
+
+	int ijk = 0;
+	int caracter = 48; //0 in ascii
+	for(ijk = 0 ; ijk < 60 ; ijk++){
+		temp[ijk] = caracter;
+		caracter++;
+		if(caracter == 58){
+			caracter = 48;
+		}
+	}
+	int state = 2;
+	extern char buttons_state[5];
+	while(1){
+		if(buttons_state[BUTTON_FORWARD]){
+			state++;
+			if(state >= 3){
+				state = 0;
+			}
+			delay(2460000);
+		}
+		//continuous send
+		if(state == 0){
+			leds_set(LED_BATTERY_0, 32);
+			leds_set(LED_BATTERY_1, 0);
+			leds_set(LED_BATTERY_2, 0);
+			//wait approx 2 sec
+			delay(2460000);
+
+			//send 90'000 bytes
+			for(ijk = 0 ; ijk < 1500 ; ijk++){
+				customSendUSB(temp, 60);
+			}
+		}
+		//continuous receive
+		else if(state == 1){
+			leds_set(LED_BATTERY_0, 0);
+			leds_set(LED_BATTERY_1, 32);
+			leds_set(LED_BATTERY_2, 0);
+		}
+		//echo
+		else if(state == 2){
+			leds_set(LED_BATTERY_0, 0);
+			leds_set(LED_BATTERY_1, 0);
+			leds_set(LED_BATTERY_2, 32);
+			rcv = customReceiveUSB(temprx);
+
+			if(rcv > 0){
+				customSendUSB(temprx, rcv);
+			}
+		}
+		
+	}
 }
 
 

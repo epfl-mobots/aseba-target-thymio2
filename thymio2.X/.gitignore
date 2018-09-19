@@ -1,0 +1,6 @@
+*.map
+build/
+dist/
+debug/
+nbproject/
+nbproject/project.xml

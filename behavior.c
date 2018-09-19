@@ -76,107 +76,107 @@ static void behavior_sd(void) {
 }
 
 static void behavior_battery(void) {
-	static char counter;
-	static char was_charging = 0;
+// 	static char counter;
+// 	static char was_charging = 0;
 	
-	// First check if 5V is present, if it's the case then 
-	// Do a funny sequence on the battery led
-	// Else display the battery level
-	// Blink if low.
+// 	// First check if 5V is present, if it's the case then 
+// 	// Do a funny sequence on the battery led
+// 	// Else display the battery level
+// 	// Blink if low.
 	
-	if(U1OTGSTATbits.SESVD) {
-		static char state;
+// 	if(U1OTGSTATbits.SESVD) {
+// 		static char state;
 		
-		if(!was_charging) {
-			// switch off everything.
-			leds_set(LED_BATTERY_0, 0);
-			leds_set(LED_BATTERY_1, 0);
-			leds_set(LED_BATTERY_2, 0);
-			was_charging = 1;
-		}
+// 		if(!was_charging) {
+// 			// switch off everything.
+// 			leds_set(LED_BATTERY_0, 0);
+// 			leds_set(LED_BATTERY_1, 0);
+// 			leds_set(LED_BATTERY_2, 0);
+// 			was_charging = 1;
+// 		}
 		
-		// On 5V
-		int i = counter ? counter : 1;
-		counter += i > 10 ? 7 : i/2 + 1;
+// 		// On 5V
+// 		int i = counter ? counter : 1;
+// 		counter += i > 10 ? 7 : i/2 + 1;
 		
-		if(counter > 100) {
-			state ++;
-			counter = 1;
-			if(state == 3) {
-				state = 0;
-			}
-			switch(state) {
-				case 0:
-					leds_set(LED_BATTERY_2, 0);
-					leds_set(LED_BATTERY_1, 0);
-					break;
-			}
-		}
-		leds_set(LED_BATTERY_0 + state, counter);
-	} else {
-		unsigned int bat = vmVariables.vbat[0] + vmVariables.vbat[1];
-		unsigned long temp = __builtin_mulss(bat,1000);
-		bat = __builtin_divud(temp,3978);
+// 		if(counter > 100) {
+// 			state ++;
+// 			counter = 1;
+// 			if(state == 3) {
+// 				state = 0;
+// 			}
+// 			switch(state) {
+// 				case 0:
+// 					leds_set(LED_BATTERY_2, 0);
+// 					leds_set(LED_BATTERY_1, 0);
+// 					break;
+// 			}
+// 		}
+// 		leds_set(LED_BATTERY_0 + state, counter);
+// 	} else {
+// 		unsigned int bat = vmVariables.vbat[0] + vmVariables.vbat[1];
+// 		unsigned long temp = __builtin_mulss(bat,1000);
+// 		bat = __builtin_divud(temp,3978);
 		
-#define BAT_HIGH 390
-#define BAT_MIDDLE 360
-#define BAT_LOW 340
+// #define BAT_HIGH 390
+// #define BAT_MIDDLE 360
+// #define BAT_LOW 340
 	
-		if(was_charging) {
-			was_charging = 0;
-			if(bat >= BAT_HIGH) {
-				leds_set(LED_BATTERY_0, 32);
-				leds_set(LED_BATTERY_1, 32);
-				leds_set(LED_BATTERY_2, 32);
-			} else if (bat > BAT_MIDDLE) {
-				leds_set(LED_BATTERY_0, 32);
-				leds_set(LED_BATTERY_1, 32);
-				leds_set(LED_BATTERY_2, 0);
-			} else if (bat > BAT_LOW) {
-				leds_set(LED_BATTERY_0, 32);
-				leds_set(LED_BATTERY_1, 0);
-				leds_set(LED_BATTERY_2, 0);
-			}
-		}
+// 		if(was_charging) {
+// 			was_charging = 0;
+// 			if(bat >= BAT_HIGH) {
+// 				leds_set(LED_BATTERY_0, 32);
+// 				leds_set(LED_BATTERY_1, 32);
+// 				leds_set(LED_BATTERY_2, 32);
+// 			} else if (bat > BAT_MIDDLE) {
+// 				leds_set(LED_BATTERY_0, 32);
+// 				leds_set(LED_BATTERY_1, 32);
+// 				leds_set(LED_BATTERY_2, 0);
+// 			} else if (bat > BAT_LOW) {
+// 				leds_set(LED_BATTERY_0, 32);
+// 				leds_set(LED_BATTERY_1, 0);
+// 				leds_set(LED_BATTERY_2, 0);
+// 			}
+// 		}
 		
-		// On battery
-		// >3.9 three leds
-		// 3.6-3.9 two leds
-		// 3.4-3.55 one led
-		// < 3.4 blink one led
+// 		// On battery
+// 		// >3.9 three leds
+// 		// 3.6-3.9 two leds
+// 		// 3.4-3.55 one led
+// 		// < 3.4 blink one led
 		
 		
 		
-		when(bat >= BAT_HIGH) {
-			leds_set(LED_BATTERY_0, 32);
-			leds_set(LED_BATTERY_1, 32);
-			leds_set(LED_BATTERY_2, 32);
-		}
-		when(bat > BAT_MIDDLE && bat < (BAT_HIGH - 5)) {
-			leds_set(LED_BATTERY_0, 32);
-			leds_set(LED_BATTERY_1, 32);
-			leds_set(LED_BATTERY_2, 0);
-		}
-		when(bat > BAT_LOW && bat <= (BAT_MIDDLE - 5)) {
-			leds_set(LED_BATTERY_0, 32);
-			leds_set(LED_BATTERY_1, 0);
-			leds_set(LED_BATTERY_2, 0);
-		}
-		when(bat <= BAT_LOW) {
-			leds_set(LED_BATTERY_1, 0);
-			leds_set(LED_BATTERY_2, 0);
-		}
-		if(bat <= BAT_LOW) {
-			counter++;
-			if(counter == 3) 
-				leds_set(LED_BATTERY_0, 32);
+// 		when(bat >= BAT_HIGH) {
+// 			leds_set(LED_BATTERY_0, 32);
+// 			leds_set(LED_BATTERY_1, 32);
+// 			leds_set(LED_BATTERY_2, 32);
+// 		}
+// 		when(bat > BAT_MIDDLE && bat < (BAT_HIGH - 5)) {
+// 			leds_set(LED_BATTERY_0, 32);
+// 			leds_set(LED_BATTERY_1, 32);
+// 			leds_set(LED_BATTERY_2, 0);
+// 		}
+// 		when(bat > BAT_LOW && bat <= (BAT_MIDDLE - 5)) {
+// 			leds_set(LED_BATTERY_0, 32);
+// 			leds_set(LED_BATTERY_1, 0);
+// 			leds_set(LED_BATTERY_2, 0);
+// 		}
+// 		when(bat <= BAT_LOW) {
+// 			leds_set(LED_BATTERY_1, 0);
+// 			leds_set(LED_BATTERY_2, 0);
+// 		}
+// 		if(bat <= BAT_LOW) {
+// 			counter++;
+// 			if(counter == 3) 
+// 				leds_set(LED_BATTERY_0, 32);
 
-			if(counter > 5) {
-				leds_set(LED_BATTERY_0, 0);
-				counter = 0;
-			}
-		}
-	}
+// 			if(counter > 5) {
+// 				leds_set(LED_BATTERY_0, 0);
+// 				counter = 0;
+// 			}
+// 		}
+// 	}
 }
 
 static void behavior_leds_buttons(void) {
