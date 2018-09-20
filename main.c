@@ -513,7 +513,7 @@ int main(void)
 	char temprx[64];
 	uint8_t rcv = 0;
 
-	int ijk = 0;
+	uint16_t ijk = 0;
 	int caracter = 48; //0 in ascii
 	//creates an array of 0123456789
 	for(ijk = 0 ; ijk < 60 ; ijk++){
@@ -539,8 +539,6 @@ int main(void)
 			leds_set(LED_BATTERY_0, 32);
 			leds_set(LED_BATTERY_1, 0);
 			leds_set(LED_BATTERY_2, 0);
-			//wait approx 2 sec
-			delay(2460000);
 
 
 			//sends 90'000 bytes
@@ -558,7 +556,7 @@ int main(void)
 			// }
 
 			char temp2[62];
-			int lmn = 0;
+			uint16_t lmn = 0;
 			uint16_t count = 0;
 			//creates an array of 'A00000000B\n\r'
 			for(ijk = 0 ; ijk < 60 ; ijk+=10){
@@ -576,33 +574,32 @@ int main(void)
 			temp2[61] = '\r';
 			count = 0;
 			//increments the number between 'A' and 'B'
-			for(ijk = 0 ; ijk < 1500 ; ijk++){
+			for(ijk = 0 ; ijk < 65000 ; ijk++){
 				for(lmn = 0 ; lmn < 60 ; lmn+=10){
-
-					temp2[ijk + 8] += 1;
-					if(temp2[ijk + 8] >= 58){	//if > '9' then = '0' and +=1 for the next digit
-						temp2[ijk + 8] = 48;
-						temp2[ijk + 7] += 1;
-						if(temp2[ijk + 7] >= 58){
-							temp2[ijk + 7] = 48;
-							temp2[ijk + 6] += 1;
-							if(temp2[ijk + 6] >= 58){
-								temp2[ijk + 6] = 48;
-								temp2[ijk + 5] += 1;
-								if(temp2[ijk + 5] >= 58){
-									temp2[ijk + 5] = 48;
-									temp2[ijk + 4] += 1;
-									if(temp2[ijk + 4] >= 58){
-										temp2[ijk + 4] = 48;
-										temp2[ijk + 3] += 1;
-										if(temp2[ijk + 3] >= 58){
-											temp2[ijk + 3] = 48;
-											temp2[ijk + 2] += 1;
-											if(temp2[ijk + 2] >= 58){
-												temp2[ijk + 2] = 48;
-												temp2[ijk + 1] += 1;
-												if(temp2[ijk + 1] >= 58){
-													temp2[ijk + 1] = 48;
+					temp2[lmn + 8] += 1;
+					if(temp2[lmn + 8] >= 58){	//if > '9' then = '0' and +=1 for the next digit
+						temp2[lmn + 8] = 48;
+						temp2[lmn + 7] += 1;
+						if(temp2[lmn + 7] >= 58){
+							temp2[lmn + 7] = 48;
+							temp2[lmn + 6] += 1;
+							if(temp2[lmn + 6] >= 58){
+								temp2[lmn + 6] = 48;
+								temp2[lmn + 5] += 1;
+								if(temp2[lmn + 5] >= 58){
+									temp2[lmn + 5] = 48;
+									temp2[lmn + 4] += 1;
+									if(temp2[lmn + 4] >= 58){
+										temp2[lmn + 4] = 48;
+										temp2[lmn + 3] += 1;
+										if(temp2[lmn + 3] >= 58){
+											temp2[lmn + 3] = 48;
+											temp2[lmn + 2] += 1;
+											if(temp2[lmn + 2] >= 58){
+												temp2[lmn + 2] = 48;
+												temp2[lmn + 1] += 1;
+												if(temp2[lmn + 1] >= 58){
+													temp2[lmn + 1] = 48;
 												}
 											}
 										}
@@ -616,6 +613,8 @@ int main(void)
 				customSendUSB(temp2, 62);
 			}
 			
+			//wait approx 10 sec
+			delay(10000000);
 			
 
 		}

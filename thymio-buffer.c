@@ -98,10 +98,21 @@ static inline void fifo_peek(unsigned char * d, struct fifo * f,size_t size) {
 
 static USB_HANDLE txHandle = NULL;
 static USB_HANDLE rxHandle = NULL;
+static char txbuff[64];
 void customSendUSB(char* buf, int size){
 	while(USBHandleBusy(txHandle));
 
-	txHandle = USBTxOnePacket(CDC_DATA_EP,(BYTE *)buf,size);
+	// uint32_t n = 100000;
+	// while (n--) {
+ //        __asm__ volatile ("nop");
+ //    }
+	uint8_t i = 0;
+	for (i = 0; i < size; i++)
+	{
+		txbuff[i] = buf[i];
+	}
+
+	txHandle = USBTxOnePacket(CDC_DATA_EP,(BYTE *)txbuff,size);
 }
 
 char rxbuff[64] = {0};

@@ -272,10 +272,10 @@ void handle_tx_urb(void) {
 }
 
 void USBCBTransfertDoneHandler(USB_HANDLE urb) {
-	if(CDCDataOutHandle == urb)
-		handle_rx_urb(urb);
-	else if(CDCDataInHandle == urb)
-		handle_tx_urb();
+	// if(CDCDataOutHandle == urb)
+	// 	handle_rx_urb(urb);
+	// else if(CDCDataInHandle == urb)
+	// 	handle_tx_urb();
 }
 
 int USBTXBusy(void) {
@@ -301,10 +301,10 @@ void USBCDCKickRx(void) {
 }
 
 void usbInterrupt(void) {
-	if(!USBHandleBusy(CDCDataOutHandle))
-		handle_rx_urb(CDCDataOutHandle);
-	if(!USBHandleBusy(CDCDataInHandle))
-		handle_tx_urb();
+	// if(!USBHandleBusy(CDCDataOutHandle))
+	// 	handle_rx_urb(CDCDataOutHandle);
+	// if(!USBHandleBusy(CDCDataInHandle))
+	// 	handle_tx_urb();
 }
 
 /** U S E R  A P I ***********************************************************/
