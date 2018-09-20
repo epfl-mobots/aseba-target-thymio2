@@ -49,6 +49,8 @@ History:
 */
 #define FW_VARIANT 1
 
+#include <stdio.h>
+
 #include <p24Fxxxx.h>
 #include <string.h>
 #include <clock/clock.h>
@@ -513,6 +515,7 @@ int main(void)
 
 	int ijk = 0;
 	int caracter = 48; //0 in ascii
+	//creates an array of 0123456789
 	for(ijk = 0 ; ijk < 60 ; ijk++){
 		temp[ijk] = caracter;
 		caracter++;
@@ -520,6 +523,7 @@ int main(void)
 			caracter = 48;
 		}
 	}
+
 	int state = 2;
 	extern char buttons_state[5];
 	while(1){
@@ -538,10 +542,82 @@ int main(void)
 			//wait approx 2 sec
 			delay(2460000);
 
-			//send 90'000 bytes
-			for(ijk = 0 ; ijk < 1500 ; ijk++){
-				customSendUSB(temp, 60);
+
+			//sends 90'000 bytes
+			// for(ijk = 0 ; ijk < 1500 ; ijk++){
+			// 	customSendUSB(temp, 60);
+			// }
+
+			//sends 'A00000000B\n' and increments the number at each loop (very slow because sprintf)
+			// uint16_t count = 0;
+			// char temp2[60];
+			// for(ijk = 0 ; ijk < 1500 ; ijk++){
+			// 	sprintf(temp2, "A%8dBA%8dBA%8dBA%8dBA%8dBA%8dB\n",count,count+1,count+2,count+3,count+4,count+5);
+			// 	customSendUSB(temp2, 61);
+			// 	count+=6;
+			// }
+
+			char temp2[62];
+			int lmn = 0;
+			uint16_t count = 0;
+			//creates an array of 'A00000000B\n\r'
+			for(ijk = 0 ; ijk < 60 ; ijk+=10){
+				temp2[ijk] = 65;	//'A'
+				temp2[ijk+9] = 66;	//'B'
+				for (lmn = 1; lmn < 9; lmn++)
+				{
+					temp2[ijk + lmn] = 48;	//'0'
+				}
+				
+				temp2[ijk + 8] = (48 + count);	//'0'
+				count++;
 			}
+			temp2[60] = '\n';
+			temp2[61] = '\r';
+			count = 0;
+			//increments the number between 'A' and 'B'
+			for(ijk = 0 ; ijk < 1500 ; ijk++){
+				for(lmn = 0 ; lmn < 60 ; lmn+=10){
+
+					temp2[ijk + 8] += 1;
+					if(temp2[ijk + 8] >= 58){	//if > '9' then = '0' and +=1 for the next digit
+						temp2[ijk + 8] = 48;
+						temp2[ijk + 7] += 1;
+						if(temp2[ijk + 7] >= 58){
+							temp2[ijk + 7] = 48;
+							temp2[ijk + 6] += 1;
+							if(temp2[ijk + 6] >= 58){
+								temp2[ijk + 6] = 48;
+								temp2[ijk + 5] += 1;
+								if(temp2[ijk + 5] >= 58){
+									temp2[ijk + 5] = 48;
+									temp2[ijk + 4] += 1;
+									if(temp2[ijk + 4] >= 58){
+										temp2[ijk + 4] = 48;
+										temp2[ijk + 3] += 1;
+										if(temp2[ijk + 3] >= 58){
+											temp2[ijk + 3] = 48;
+											temp2[ijk + 2] += 1;
+											if(temp2[ijk + 2] >= 58){
+												temp2[ijk + 2] = 48;
+												temp2[ijk + 1] += 1;
+												if(temp2[ijk + 1] >= 58){
+													temp2[ijk + 1] = 48;
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+					count++;
+				}
+				customSendUSB(temp2, 62);
+			}
+			
+			
+
 		}
 		//continuous receive
 		else if(state == 1){
@@ -554,11 +630,14 @@ int main(void)
 			leds_set(LED_BATTERY_0, 0);
 			leds_set(LED_BATTERY_1, 0);
 			leds_set(LED_BATTERY_2, 32);
+			int flags;
+			RAISE_IPL(flags, PRIO_COMMUNICATION);
 			rcv = customReceiveUSB(temprx);
 
 			if(rcv > 0){
 				customSendUSB(temprx, rcv);
 			}
+			IRQ_ENABLE(flags);
 		}
 		
 	}
