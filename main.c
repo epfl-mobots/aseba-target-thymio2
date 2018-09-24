@@ -509,9 +509,13 @@ int main(void)
 	// Give full control to aseba. No way out (except reset).
 	//run_aseba_main_loop();
 
-	char readBuffer[256] = {0};
+	#define BUFFER_SIZE	2048
+	#define MAX_PACKET_SIZE 64
+
+	char readBuffer[BUFFER_SIZE] = {0};
 	uint16_t inCount = 0;
 	uint16_t readCount = 0;
+
 
 	char temp[60];
 	char temprx[64];
@@ -614,7 +618,7 @@ int main(void)
 					}
 					count++;
 				}
-				customSendUSB(temp2, 62);
+				while(!customSendUSB(temp2, 62));
 			}
 			
 			//wait approx 10 sec
@@ -635,23 +639,26 @@ int main(void)
 			leds_set(LED_BATTERY_2, 32);
 			int flags;
 			//RAISE_IPL(flags, PRIO_COMMUNICATION);
-			if(inCount <= (255-64)){
+			if(inCount <= (BUFFER_SIZE-1-MAX_PACKET_SIZE)){
 				rcv = customReceiveUSB(&readBuffer[inCount]);
 				inCount += rcv;
 			}
 
 			int16_t size = (inCount - readCount);
+			uint8_t sent = 0;
 			if(size > 0){
-				if(size > 64){
-					customSendUSB(&readBuffer[readCount], 64);
-					readCount += 64;
+				if(size > MAX_PACKET_SIZE){
+					sent = customSendUSB(&readBuffer[readCount], MAX_PACKET_SIZE);
+					if(sent){
+						readCount += MAX_PACKET_SIZE;
+						//delay(1000000);
+					}
 				}else{
-					customSendUSB(&readBuffer[readCount], size);
-					readCount += size;
-				}
-
-				if(readCount > 255){
-					readCount = 0;
+					sent = customSendUSB(&readBuffer[readCount], size);
+					if(sent){
+						readCount += size;	
+						//delay(1000000);
+					}
 				}
 				
 			}else{
