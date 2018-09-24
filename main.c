@@ -509,6 +509,10 @@ int main(void)
 	// Give full control to aseba. No way out (except reset).
 	//run_aseba_main_loop();
 
+	char readBuffer[256] = {0};
+	uint16_t inCount = 0;
+	uint16_t readCount = 0;
+
 	char temp[60];
 	char temprx[64];
 	uint8_t rcv = 0;
@@ -630,13 +634,31 @@ int main(void)
 			leds_set(LED_BATTERY_1, 0);
 			leds_set(LED_BATTERY_2, 32);
 			int flags;
-			RAISE_IPL(flags, PRIO_COMMUNICATION);
-			rcv = customReceiveUSB(temprx);
-
-			if(rcv > 0){
-				customSendUSB(temprx, rcv);
+			//RAISE_IPL(flags, PRIO_COMMUNICATION);
+			if(inCount <= (255-64)){
+				rcv = customReceiveUSB(&readBuffer[inCount]);
+				inCount += rcv;
 			}
-			IRQ_ENABLE(flags);
+
+			int16_t size = (inCount - readCount);
+			if(size > 0){
+				if(size > 64){
+					customSendUSB(&readBuffer[readCount], 64);
+					readCount += 64;
+				}else{
+					customSendUSB(&readBuffer[readCount], size);
+					readCount += size;
+				}
+
+				if(readCount > 255){
+					readCount = 0;
+				}
+				
+			}else{
+				inCount = 0;
+				readCount = 0;
+			}
+			//IRQ_ENABLE(flags);
 		}
 		
 	}
